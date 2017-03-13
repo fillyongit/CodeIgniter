@@ -2270,22 +2270,6 @@ class CI_Email {
 	protected function _get_smtp_data()
 	{
 		$data = '';
-	
-// 		while ($str = fgets($this->_smtp_connect, 512))
-// 		{
-// 			$data .= $str;
-// 			if ($str[3] === ' ')
-// 			{
-// 				break;
-// 			}
-// 		}
-	
-		// The problem with the above commented code is that if
-		// an smtp server is slow to answer (this really happened to me) 
-		// then the client get an empty string even if the server is about to answer.
-		// This results in an error message in method _send_with_smtp() even if
-		// the email was sent.
-
 		$start_time = time();
 		$response_arrived = FALSE;
 		$ts = '__TOO_SOON__'; // This is the value that has the string if no response still is arrived from the server.
