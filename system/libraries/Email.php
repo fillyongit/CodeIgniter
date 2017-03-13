@@ -2261,7 +2261,7 @@ class CI_Email {
 	}
 
 	// --------------------------------------------------------------------
-
+	
 	/**
 	 * Get SMTP data
 	 *
@@ -2270,17 +2270,50 @@ class CI_Email {
 	protected function _get_smtp_data()
 	{
 		$data = '';
+	
+// 		while ($str = fgets($this->_smtp_connect, 512))
+// 		{
+// 			$data .= $str;
+// 			if ($str[3] === ' ')
+// 			{
+// 				break;
+// 			}
+// 		}
+	
+		// The problem with the above commented code is that if
+		// an smtp server is slow to answer (this really happened to me) 
+		// then the client get an empty string even if the server is about to answer.
+		// This results in an error message in method _send_with_smtp() even if
+		// the email was sent.
 
-		while ($str = fgets($this->_smtp_connect, 512))
-		{
-			$data .= $str;
-
-			if ($str[3] === ' ')
-			{
-				break;
+		$start_time = time();
+		$response_arrived = FALSE;
+		$ts = '__TOO_SOON__'; // This is the value that has the string if no response still is arrived from the server.
+							  // This must be a value that i'm sure an smtp server can never send back.
+		do {
+			$str = fgets($this->_smtp_connect, 512);
+			if (!$str && !$response_arrived) {
+				if ((time() - $start_time) > 20) {
+					// If response is empty for more tha n seconds break the cycle.
+					// The value of timeout must be put in a config variable.
+					break;
+				}
+				$str = $ts;
+			} else {
+				$response_arrived = TRUE;
 			}
-		}
-
+				
+			// This piece of code is equal to the previuos revision.
+			if ($str != $ts && $response_arrived) {
+				$data .= $str;
+	
+				if ($str[3] === ' ')
+				{
+					break;
+				}
+			}
+		} while ($str);
+	
 		return $data;
 	}
 
