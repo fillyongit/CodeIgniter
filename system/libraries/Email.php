@@ -2277,9 +2277,7 @@ class CI_Email {
 		do {
 			$str = fgets($this->_smtp_connect, 512);
 			if (!$str && !$response_arrived) {
-				if ((time() - $start_time) > 20) {
-					// If response is empty for more tha n seconds break the cycle.
-					// The value of timeout must be put in a config variable.
+				if ((time() - $start_time) > $this->smtp_timeout) {
 					break;
 				}
 				$str = $ts;
